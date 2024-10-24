@@ -12,10 +12,11 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
+import { Button } from "@/components/ui/button";
 
 const schema = z.object({
   audioFile: z
-    .instanceof(FileList)
+    .instanceof(FileList, { message: "Audio file is required" })
     .refine((files) => files.length > 0, "Audio file is required"),
   assemblyKey: z.string().min(1, "Assembly AI key is required"),
   openaiKey: z.string().min(1, "OpenAI key is required"),
@@ -92,12 +93,9 @@ export default function UploadPage() {
               </FormItem>
             )}
           />
-          <button
-            type="submit"
-            className="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700"
-          >
-            Submit
-          </button>
+          <div className="flex justify-end">
+            <Button type="submit">Submit</Button>
+          </div>
         </form>
       </Form>
     </div>
