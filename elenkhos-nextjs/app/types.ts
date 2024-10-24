@@ -30,9 +30,19 @@ export const TranscriptSchema = z.object({
   summary: z.string().nullable(),
 });
 
+export const StepSchema = z.object({
+  explanation: z.string(),
+  output: z.string(),
+});
+
 export const MergedSegmentSchema = z.object({
   text: z.string(),
   speaker: z.string(),
+});
+
+export const MergedSegmentsResponseSchema = z.object({
+  steps: z.array(StepSchema),
+  final_answer: z.array(MergedSegmentSchema),
 });
 
 export const ArgumentAnalysisSchema = z.object({
