@@ -15,9 +15,10 @@ import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 
 const schema = z.object({
-  audioFile: z
-    .instanceof(FileList, { message: "Audio file is required" })
-    .refine((files) => files.length > 0, "Audio file is required"),
+  audioFile: z.any().refine((value) => {
+    if (typeof window === "undefined") return true;
+    return value instanceof FileList && value.length > 0;
+  }, "Audio file is required"),
   assemblyKey: z.string().min(1, "Assembly AI key is required"),
   openaiKey: z.string().min(1, "OpenAI key is required"),
 });
