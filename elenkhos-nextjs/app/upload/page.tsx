@@ -73,12 +73,9 @@ export default function UploadPage() {
   }, [status, result.data, result.serverError, result.validationErrors]);
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100">
+    <div className="flex">
       <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="space-y-6 bg-white p-8 rounded shadow-md"
-        >
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 ">
           <FormField
             control={form.control}
             name="audioFile"
