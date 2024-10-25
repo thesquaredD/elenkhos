@@ -4,13 +4,12 @@ import {
   varchar,
   text,
   timestamp,
-  uuid,
   integer,
   jsonb,
   pgEnum,
-  numeric,
+  real,
 } from "drizzle-orm/pg-core";
-import { relations } from "drizzle-orm";
+import { InferInsertModel, relations } from "drizzle-orm";
 
 // Define the relation type enum
 export const relationTypeEnum = pgEnum("relation_type", [
@@ -29,13 +28,16 @@ export const debates = pgTable("debates", {
 
 // Transcripts table
 export const transcripts = pgTable("transcripts", {
-  id: uuid("id").primaryKey(),
-  debateId: integer("debate_id").references(() => debates.id),
+  id: serial("id").primaryKey(),
+  debateId: integer("debate_id")
+    .references(() => debates.id)
+    .notNull(),
   text: text("text").notNull(),
   utterances: jsonb("utterances"),
   words: jsonb("words"),
-  confidence: numeric("confidence"),
-  audioDuration: numeric("audio_duration"),
+  externalId: varchar("external_id", { length: 255 }),
+  confidence: real("confidence"),
+  audioDuration: integer("audio_duration"),
   status: varchar("status", { length: 50 }),
   error: text("error"),
   summary: text("summary"),
@@ -44,22 +46,42 @@ export const transcripts = pgTable("transcripts", {
 // Arguments table
 export const _arguments = pgTable("arguments", {
   id: serial("id").primaryKey(),
-  debateId: integer("debate_id").references(() => debates.id),
+  debateId: integer("debate_id")
+    .references(() => debates.id)
+    .notNull(),
   scheme: varchar("scheme", { length: 255 }),
-  premises: jsonb("premises"),
   conclusion: text("conclusion"),
-  criticalQuestions: jsonb("critical_questions"),
   text: text("text"),
   speaker: varchar("speaker", { length: 255 }),
+});
+
+// Premises table
+export const premises = pgTable("premises", {
+  id: serial("id").primaryKey(),
+  argumentId: integer("argument_id").references(() => _arguments.id),
+  text: text("text").notNull(),
+});
+
+// Critical Questions table
+export const criticalQuestions = pgTable("critical_questions", {
+  id: serial("id").primaryKey(),
+  argumentId: integer("argument_id").references(() => _arguments.id),
+  text: text("text").notNull(),
 });
 
 // Relations table
 export const _relations = pgTable("relations", {
   id: serial("id").primaryKey(),
-  debateId: integer("debate_id").references(() => debates.id),
-  sourceId: integer("source_id").references(() => _arguments.id),
-  targetId: integer("target_id").references(() => _arguments.id),
-  type: relationTypeEnum("type"),
+  debateId: integer("debate_id")
+    .references(() => debates.id)
+    .notNull(),
+  sourceId: integer("source_id")
+    .references(() => _arguments.id)
+    .notNull(),
+  targetId: integer("target_id")
+    .references(() => _arguments.id)
+    .notNull(),
+  type: relationTypeEnum("type").notNull(),
 });
 
 // Define relationships
@@ -76,12 +98,31 @@ export const transcriptsRelations = relations(transcripts, ({ one }) => ({
   }),
 }));
 
-export const argumentsRelations = relations(_arguments, ({ one }) => ({
+export const argumentsRelations = relations(_arguments, ({ one, many }) => ({
   debate: one(debates, {
     fields: [_arguments.debateId],
     references: [debates.id],
   }),
+  premises: many(premises),
+  criticalQuestions: many(criticalQuestions),
 }));
+
+export const premisesRelations = relations(premises, ({ one }) => ({
+  argument: one(_arguments, {
+    fields: [premises.argumentId],
+    references: [_arguments.id],
+  }),
+}));
+
+export const criticalQuestionsRelations = relations(
+  criticalQuestions,
+  ({ one }) => ({
+    argument: one(_arguments, {
+      fields: [criticalQuestions.argumentId],
+      references: [_arguments.id],
+    }),
+  })
+);
 
 export const relationsRelations = relations(_relations, ({ one }) => ({
   debate: one(debates, {
@@ -97,3 +138,5 @@ export const relationsRelations = relations(_relations, ({ one }) => ({
     references: [_arguments.id],
   }),
 }));
+
+export type NewTranscript = InferInsertModel<typeof transcripts>;
