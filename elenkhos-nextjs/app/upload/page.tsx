@@ -16,14 +16,32 @@ import { Button } from "@/components/ui/button";
 import { useStateAction } from "next-safe-action/stateful-hooks";
 import { analyseDebate } from "../actions/analyse";
 
-const schema = z.object({
-  audioFile: z.any().refine((value) => {
-    if (typeof window === "undefined") return true;
-    return value instanceof FileList && value.length > 0;
-  }, "Audio file is required"),
-  assemblyKey: z.string().min(1, "Assembly AI key is required"),
-  openaiKey: z.string().min(1, "OpenAI key is required"),
-});
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
+
+const schema = z
+  .object({
+    audioFile: z.any(),
+    assemblyKey: z.string().min(1, "Assembly AI key is required"),
+    openaiKey: z.string().min(1, "OpenAI key is required"),
+  })
+  .superRefine((data, ctx) => {
+    if (typeof window !== "undefined") {
+      const { audioFile } = data;
+      if (!(audioFile instanceof FileList) || audioFile.length === 0) {
+        ctx.addIssue({
+          path: ["audioFile"],
+          code: z.ZodIssueCode.custom,
+          message: "Audio file is required",
+        });
+      } else if (audioFile[0].size > MAX_FILE_SIZE) {
+        ctx.addIssue({
+          path: ["audioFile"],
+          code: z.ZodIssueCode.custom,
+          message: "Audio file must be less than 10 MB",
+        });
+      }
+    }
+  });
 
 type FormData = z.infer<typeof schema>;
 
@@ -73,7 +91,15 @@ export default function UploadPage() {
                     accept="audio/*"
                     onChange={(e) => {
                       if (e.target.files) {
-                        field.onChange(e.target.files);
+                        // Add size validation here
+                        if (e.target.files[0]?.size > MAX_FILE_SIZE) {
+                          form.setError("audioFile", {
+                            message: "Audio file must be less than 10 MB",
+                          });
+                        } else {
+                          form.clearErrors("audioFile");
+                          field.onChange(e.target.files);
+                        }
                       }
                     }}
                   />
