@@ -53,12 +53,10 @@ export const analyseDebate = actionClient
 
     // 2. Find arguments
     console.log("Finding arguments");
-    const segments =
-      transcript.utterances?.map((u) => ({
-        text: u.text,
-        speaker: u.speaker,
-      })) ?? [];
-    const mergedSegments = await findArguments(segments, openai);
+    const mergedSegments = await findArguments(
+      transcript.utterances ?? [],
+      openai
+    );
     console.log(`Found ${mergedSegments.length} arguments`);
 
     // 3. Analyze all arguments
@@ -77,6 +75,8 @@ export const analyseDebate = actionClient
         premises: analyzedArguments[i].premises,
         text: segment.text,
         speaker: segment.speaker,
+        start: segment.start,
+        end: segment.end,
       })
     );
 

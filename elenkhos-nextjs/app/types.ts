@@ -38,6 +38,8 @@ export const StepSchema = z.object({
 export const MergedSegmentSchema = z.object({
   text: z.string(),
   speaker: z.string(),
+  start: z.number(),
+  end: z.number(),
 });
 
 export const MergedSegmentsResponseSchema = z.object({

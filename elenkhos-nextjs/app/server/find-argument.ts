@@ -2,9 +2,10 @@ import "server-only";
 import OpenAI from "openai";
 import { MergedSegment, MergedSegmentsResponseSchema } from "../types";
 import { zodResponseFormat } from "openai/helpers/zod";
+import { TranscriptUtterance } from "assemblyai";
 
 export async function findArguments(
-  segments: MergedSegment[],
+  segments: TranscriptUtterance[],
   openai: OpenAI
 ): Promise<MergedSegment[]> {
   const prompt = `
@@ -14,7 +15,9 @@ export async function findArguments(
 
     Identify which segments belong to the same argument and should be merged. **Only merge segments that have the same 'speaker'.**
 
-    Return a list of merged arguments, where each argument is represented as a dictionary with 'text' and 'speaker' keys.
+    For each merged argument, set the 'start' time to the first utterance's start time and the 'end' time to the last utterance's end time.
+
+    Return a list of merged arguments, where each argument is represented as a dictionary with 'text', 'speaker', 'start', and 'end' keys.
   `;
 
   try {

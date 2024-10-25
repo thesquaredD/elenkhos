@@ -51,6 +51,8 @@ export const _arguments = pgTable("arguments", {
     .notNull(),
   scheme: varchar("scheme", { length: 255 }),
   conclusion: text("conclusion"),
+  start: integer("start"),
+  end: integer("end"),
   text: text("text"),
   speaker: varchar("speaker", { length: 255 }),
 });
