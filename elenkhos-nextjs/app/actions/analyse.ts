@@ -3,7 +3,14 @@
 import { z } from "zod";
 import { zfd } from "zod-form-data";
 import OpenAI from "openai";
-import { debates, transcripts, _arguments, _relations } from "@/drizzle/schema";
+import {
+  debates,
+  transcripts,
+  _arguments,
+  _relations,
+  premises,
+  criticalQuestions,
+} from "@/drizzle/schema";
 import { transcribeAndDiarize } from "../server/transcribe-and-diarize";
 import { findArguments } from "../server/find-argument";
 import { analyzeArgument } from "../server/analyse-argument";
@@ -20,6 +27,8 @@ const schema = zfd.formData({
 export type ArgumentResponse = {
   scheme: string;
   conclusion: string;
+  critical_questions: string[];
+  premises: string[];
   text: string;
   speaker: string;
 };
@@ -64,10 +73,14 @@ export const analyseDebate = actionClient
       (segment, i) => ({
         scheme: analyzedArguments[i].scheme,
         conclusion: analyzedArguments[i].conclusion,
+        critical_questions: analyzedArguments[i].critical_questions,
+        premises: analyzedArguments[i].premises,
         text: segment.text,
         speaker: segment.speaker,
       })
     );
+
+    console.log("Argument data prepared");
 
     // 5. Find relations (before transaction)
     console.log("Finding argument relations");
@@ -110,7 +123,11 @@ export const analyseDebate = actionClient
       // 8. Insert all arguments and collect their IDs
       console.log("3. Inserting arguments");
       const insertedArguments = [];
-      for (const argData of argumentData) {
+      for (let i = 0; i < argumentData.length; i++) {
+        const argData = argumentData[i];
+        const analysis = analyzedArguments[i];
+
+        // Insert argument
         const [argument] = await tx
           .insert(_arguments)
           .values({
@@ -119,6 +136,29 @@ export const analyseDebate = actionClient
           })
           .returning();
         insertedArguments.push(argument);
+
+        // Insert premises
+        if (analysis.premises && analysis.premises.length > 0) {
+          await tx.insert(premises).values(
+            analysis.premises.map((premiseText) => ({
+              argumentId: argument.id,
+              text: premiseText,
+            }))
+          );
+        }
+
+        // Insert critical questions
+        if (
+          analysis.critical_questions &&
+          analysis.critical_questions.length > 0
+        ) {
+          await tx.insert(criticalQuestions).values(
+            analysis.critical_questions.map((questionText: string) => ({
+              argumentId: argument.id,
+              text: questionText,
+            }))
+          );
+        }
       }
 
       // 9. Insert relations using the real IDs
