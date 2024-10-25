@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import {
@@ -13,6 +13,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
+import { useStateAction } from "next-safe-action/stateful-hooks";
+import { analyseDebate } from "../actions/analyse";
 
 const schema = z.object({
   audioFile: z.any().refine((value) => {
@@ -30,15 +32,27 @@ export default function UploadPage() {
     resolver: zodResolver(schema),
   });
 
-  const onSubmit = (data: FormData) => {
-    // Handle form submission
-    const audioFile = data.audioFile[0];
-    const assemblyKey = data.assemblyKey;
-    const openaiKey = data.openaiKey;
+  const { execute, result, status, isPending } = useStateAction(analyseDebate);
+  const [message, setMessage] = useState<string | null>(null);
 
-    // Implement your upload logic here
-    console.log({ audioFile, assemblyKey, openaiKey });
+  const onSubmit = (data: FormData) => {
+    const formData = new FormData();
+    formData.append("audioFile", data.audioFile[0]);
+    formData.append("assemblyKey", data.assemblyKey);
+    formData.append("openaiKey", data.openaiKey);
+
+    execute(formData);
   };
+
+  useEffect(() => {
+    if (status === "hasSucceeded" && result.data) {
+      setMessage(`Debate created with ID: ${result.data.debateId}`);
+    } else if (status === "hasErrored") {
+      setMessage(
+        `An error occurred: ${result.serverError} ${result.validationErrors}`
+      );
+    }
+  }, [status, result.data, result.serverError, result.validationErrors]);
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100">
@@ -95,10 +109,15 @@ export default function UploadPage() {
             )}
           />
           <div className="flex justify-end">
-            <Button type="submit">Submit</Button>
+            <Button type="submit" disabled={isPending}>
+              {isPending ? "Submitting..." : "Submit"}
+            </Button>
           </div>
         </form>
       </Form>
+      {message && (
+        <div className="mt-4 p-4 bg-green-100 rounded">{message}</div>
+      )}
     </div>
   );
 }
