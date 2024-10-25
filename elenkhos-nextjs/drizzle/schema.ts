@@ -9,7 +9,7 @@ import {
   pgEnum,
   real,
 } from "drizzle-orm/pg-core";
-import { InferInsertModel, relations } from "drizzle-orm";
+import { InferInsertModel, InferSelectModel, relations } from "drizzle-orm";
 
 // Define the relation type enum
 export const relationTypeEnum = pgEnum("relation_type", [
@@ -140,3 +140,5 @@ export const relationsRelations = relations(_relations, ({ one }) => ({
 }));
 
 export type NewTranscript = InferInsertModel<typeof transcripts>;
+
+export type DrizzleArgument = InferSelectModel<typeof _arguments>;

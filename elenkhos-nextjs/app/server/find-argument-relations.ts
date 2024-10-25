@@ -1,10 +1,11 @@
 import OpenAI from "openai";
 import { zodResponseFormat } from "openai/helpers/zod.mjs";
-import { Argument, Relation, RelationSchema } from "../types";
+import { Relation, RelationSchema } from "../types";
 import { z } from "zod";
+import { DrizzleArgument } from "@/drizzle/schema";
 
 export async function findArgumentRelations(
-  _arguments: Argument[],
+  _arguments: DrizzleArgument[],
   openai: OpenAI
 ): Promise<Relation[]> {
   const prompt = `
@@ -17,7 +18,7 @@ export async function findArgumentRelations(
 
   try {
     const completion = await openai.beta.chat.completions.parse({
-      model: "gpt-4o-2024-08-06",
+      model: "o1-mini",
       messages: [
         { role: "system", content: "You are a debate analysis assistant." },
         { role: "user", content: prompt },
