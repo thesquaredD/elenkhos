@@ -123,6 +123,7 @@ const LayoutFlow = ({ nodes, edges }: DebateFlowProps) => {
         }}
         edgeTypes={edgeTypes}
         fitView
+        selectNodesOnDrag={false}
         connectionMode={ConnectionMode.Loose}
       >
         <Background />
