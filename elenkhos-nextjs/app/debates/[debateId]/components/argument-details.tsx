@@ -93,86 +93,91 @@ export default function ArgumentDetails({ argument }: ArgumentDetailsProps) {
   }, [argument.id]);
 
   return (
-    <Card>
+    <Card className="max-w-3xl">
       <CardHeader>
-        <CardTitle>{argument.shortName || "Unnamed Argument"}</CardTitle>
-        <CardDescription>
-          By {argument.speaker || "Unknown Speaker"}
-        </CardDescription>
+        <CardTitle className="text-xl">
+          {argument.shortName || "Unnamed Argument"}
+        </CardTitle>
+        <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+          {argument.scheme}
+        </span>
+        <div className="flex items-center gap-2">
+          <CardDescription>
+            By {argument.speaker || "Unknown Speaker"}
+          </CardDescription>
+          {argument.start != null && argument.end != null && (
+            <>
+              <CardDescription>•</CardDescription>
+              <CardDescription className="text-sm text-muted-foreground/80">
+                {formatTimestamp(argument.start)} -{" "}
+                {formatTimestamp(argument.end)}
+              </CardDescription>
+            </>
+          )}
+        </div>
       </CardHeader>
       <CardContent>
         {isLoading ? (
           <ArgumentSkeleton />
         ) : (
-          <div className="flex flex-col gap-4">
-            {argument.scheme && (
-              <div>
-                <h3 className="font-semibold mb-1">Argumentation Scheme</h3>
-                <p className="text-sm text-muted-foreground">
-                  {argument.scheme}
-                </p>
-              </div>
-            )}
-
-            {premises.length > 0 && (
-              <div>
-                <h3 className="font-semibold mb-1">Premises</h3>
-                <ul className="list-disc pl-4">
-                  {premises.map((premise) => (
-                    <li
-                      key={premise.id}
-                      className="text-sm text-muted-foreground"
-                    >
-                      {premise.text}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            <div>
-              <h3 className="font-semibold mb-1">Conclusion</h3>
-              <p className="text-sm text-muted-foreground">
+          <div className="flex flex-col gap-6">
+            <section>
+              <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                Conclusion
+              </span>
+              <p className="text-sm">
                 {argument.conclusion || "No conclusion provided"}
               </p>
+            </section>
+            {/* Main Content */}
+            <div className="space-y-6">
+              {premises.length > 0 && (
+                <section>
+                  <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                    Key Premises
+                  </span>
+                  <ul className="list-disc pl-4 space-y-2">
+                    {premises.map((premise) => (
+                      <li key={premise.id} className="text-sm">
+                        {premise.text}
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              )}
+
+              {criticalQuestions.length > 0 && (
+                <section className="bg-primary/5 flex flex-col gap-2 rounded-lg p-4 border border-primary/10">
+                  <span className="text-xs font-medium uppercase tracking-wider">
+                    Critical Questions
+                  </span>
+                  <ul className="list-none space-y-3">
+                    {criticalQuestions.map((question, index) => (
+                      <li key={question.id} className="flex gap-3 text-sm">
+                        <span className="text-primary font-medium">
+                          Q{index + 1}.
+                        </span>
+                        <span>{question.text}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              )}
+
+              <section>
+                <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                  Full Argument
+                </span>
+                <div className="prose prose-sm max-w-none">
+                  <p className="text-sm whitespace-pre-wrap">
+                    {argument.text || "No text available"}
+                  </p>
+                </div>
+              </section>
             </div>
-
-            {criticalQuestions.length > 0 && (
-              <div>
-                <h3 className="font-semibold mb-1">Critical Questions</h3>
-                <ul className="list-disc pl-4">
-                  {criticalQuestions.map((question) => (
-                    <li
-                      key={question.id}
-                      className="text-sm text-muted-foreground"
-                    >
-                      {question.text}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            <div>
-              <h3 className="font-semibold mb-1">Full Text</h3>
-              <p className="text-sm text-muted-foreground whitespace-pre-wrap">
-                {argument.text || "No text available"}
-              </p>
-            </div>
-
-            {argument.start != null && argument.end != null && (
-              <div>
-                <h3 className="font-semibold mb-1">Timestamp</h3>
-                <p className="text-sm text-muted-foreground">
-                  {`${formatTimestamp(argument.start)} - ${formatTimestamp(
-                    argument.end
-                  )}`}
-                </p>
-              </div>
-            )}
 
             {hasError && (
-              <div className="text-sm text-destructive">
+              <div className="text-sm text-destructive bg-destructive/10 p-3 rounded">
                 Failed to load argument details. Please try again later.
               </div>
             )}
