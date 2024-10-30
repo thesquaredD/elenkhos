@@ -1,4 +1,4 @@
-import { Home, Upload } from "lucide-react";
+import { FileText, Home, Upload } from "lucide-react";
 
 import {
   Sidebar,
@@ -22,6 +22,11 @@ const items = [
     url: "/upload",
     icon: Upload,
   },
+  {
+    title: "Debates",
+    url: "/debates",
+    icon: FileText,
+  },
 ];
 
 export function AppSidebar() {
@@ -33,9 +38,9 @@ export function AppSidebar() {
             <SidebarMenu>
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <a href={item.url}>
-                      <item.icon />
+                  <SidebarMenuButton asChild className="flex gap-2">
+                    <a href={item.url} className="flex gap-2 items-center">
+                      <item.icon className="h-4 w-4" />
                       <span>{item.title}</span>
                     </a>
                   </SidebarMenuButton>
