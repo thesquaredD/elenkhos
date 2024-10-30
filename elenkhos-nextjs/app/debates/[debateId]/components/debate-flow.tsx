@@ -75,7 +75,7 @@ interface DebateFlowProps {
 }
 
 const LayoutFlow = ({ nodes, edges }: DebateFlowProps) => {
-  const { fitView } = useReactFlow();
+  const { fitView, setNodes: setFlowNodes } = useReactFlow();
   const [nodesState, setNodes, onNodesChange] = useNodesState(nodes);
   const [edgesState, setEdges, onEdgesChange] = useEdgesState(edges);
   const [selectedArgument, setSelectedArgument] =
@@ -97,6 +97,17 @@ const LayoutFlow = ({ nodes, edges }: DebateFlowProps) => {
     [nodesState, edgesState]
   );
 
+  const handleClose = useCallback(() => {
+    setSelectedArgument(null);
+    // Clear the ReactFlow selection
+    setFlowNodes((nds) =>
+      nds.map((node) => ({
+        ...node,
+        selected: false,
+      }))
+    );
+  }, [setFlowNodes]);
+
   return (
     <>
       <GraphMarkers />
@@ -106,25 +117,26 @@ const LayoutFlow = ({ nodes, edges }: DebateFlowProps) => {
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         nodeTypes={nodeTypes}
-        onNodeClick={(event, node) => {
-          setSelectedArgument(node.data);
+        onSelectionChange={({ nodes }) => {
+          const selected = nodes[0]?.data as ArgumentNodeData;
+          setSelectedArgument(selected || null);
         }}
         edgeTypes={edgeTypes}
         fitView
         connectionMode={ConnectionMode.Loose}
       >
-        {selectedArgument && (
-          <ArgumentOverlay
-            argument={selectedArgument}
-            position={{ x: 10, y: 10 }}
-            onClose={() => setSelectedArgument(null)}
-          />
-        )}
         <Background />
         <Controls />
         <Panel position="top-right">
           <Button onClick={() => onLayout("TB")}>Set Layout</Button>
         </Panel>
+        {selectedArgument && (
+          <ArgumentOverlay
+            argument={selectedArgument}
+            position={{ x: 10, y: 10 }}
+            onClose={handleClose}
+          />
+        )}
       </ReactFlow>
     </>
   );

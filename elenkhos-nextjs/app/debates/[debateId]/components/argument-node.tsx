@@ -5,8 +5,9 @@ import { Handle, NodeProps, Position } from "@xyflow/react";
 import { ArgumentNode } from "@/app/types";
 
 const commonClasses = {
-  wrapper: "w-[150px] h-[150px]",
-  path: "fill-white stroke-black stroke-1",
+  wrapper: "w-[150px] h-[150px] transition-all duration-200",
+  path: "fill-white stroke-black stroke-1 transition-all duration-200",
+  selected: "stroke-2 stroke-green-500 fill-green-500/10",
 };
 
 const shapeVariants = [
@@ -48,7 +49,7 @@ const shapeVariants = [
   },
 ];
 
-function ArgumentNodeComponent({ data }: NodeProps<ArgumentNode>) {
+function ArgumentNodeComponent({ data, selected }: NodeProps<ArgumentNode>) {
   const shape = shapeVariants[data.speakerShape % shapeVariants.length];
   const Icon = shape.icon;
 
@@ -56,16 +57,27 @@ function ArgumentNodeComponent({ data }: NodeProps<ArgumentNode>) {
     <div className="relative flex flex-col items-center justify-center">
       <Handle type="target" position={Position.Top} className="opacity-0" />
       <div className="relative inline-block">
-        <Icon className={`${shape.className} ${shape.pathClass}`} />
+        <Icon
+          className={`
+            ${shape.className} 
+            ${shape.pathClass} 
+            ${selected ? commonClasses.selected : ""}
+            ${selected ? "scale-105" : ""}
+          `}
+        />
         <div className="absolute inset-0 flex items-center justify-center">
-          <div className="flex flex-col gap-2 w-[130px]">
+          <div
+            className={`
+            flex flex-col gap-2 w-[130px]
+            ${selected ? "text-green-900 font-semibold" : ""}
+          `}
+          >
             <div className="text-sm font-medium text-center line-clamp-3">
               {data.shortName || data.text || "No conclusion"}
             </div>
           </div>
         </div>
       </div>
-
       <Handle type="source" position={Position.Bottom} className="opacity-0" />
     </div>
   );

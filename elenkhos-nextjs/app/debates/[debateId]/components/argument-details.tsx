@@ -95,9 +95,14 @@ export default function ArgumentDetails({ argument }: ArgumentDetailsProps) {
   return (
     <Card className="max-w-3xl">
       <CardHeader>
-        <CardTitle className="text-xl">
-          {argument.shortName || "Unnamed Argument"}
-        </CardTitle>
+        <div className="flex items-center gap-2">
+          <span className="bg-green-100 border border-green-500 text-green-800 text-xs font-medium px-2 py-0.5 rounded">
+            Selected
+          </span>
+          <CardTitle className="text-xl">
+            {argument.shortName || "Unnamed Argument"}
+          </CardTitle>
+        </div>
         <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
           {argument.scheme}
         </span>
