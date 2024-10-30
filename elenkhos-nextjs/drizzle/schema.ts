@@ -68,6 +68,12 @@ export const criticalQuestions = pgTable("critical_questions", {
   text: text("text").notNull(),
 });
 
+export type DrizzleCriticalQuestion = InferSelectModel<
+  typeof criticalQuestions
+>;
+
+export type DrizzlePremise = InferSelectModel<typeof premises>;
+
 // Relations table
 export const relationCriterionEnum = pgEnum("relation_criterion", [
   "LOGICAL_CONTRADICTION",

@@ -59,11 +59,12 @@ export const ArgumentAnalysisSchema = z.object({
 
 export const RelationTypeSchema = z.enum(["SUPPORT", "ATTACK"]);
 
+export type ArgumentNodeData = DrizzleArgument & {
+  label: string;
+  speakerShape: number;
+};
 export interface ArgumentNode extends Node {
-  data: DrizzleArgument & {
-    label: string;
-    speakerShape: number;
-  };
+  data: ArgumentNodeData;
 }
 
 export type RelationType = z.infer<typeof RelationTypeSchema>;

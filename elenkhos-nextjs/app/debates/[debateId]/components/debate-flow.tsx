@@ -1,7 +1,7 @@
 "use client";
 
 import Dagre from "@dagrejs/dagre";
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import {
   ReactFlow,
   ReactFlowProvider,
@@ -13,12 +13,13 @@ import {
   Background,
   ConnectionMode,
 } from "@xyflow/react";
-import { ArgumentNode } from "@/app/types";
+import { ArgumentNode, ArgumentNodeData } from "@/app/types";
 import { Edge } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import ArgumentNodeComponent from "./argument-node";
 import RelationEdge, { GraphMarkers } from "./relation-edge";
 import { Button } from "@/components/ui/button";
+import ArgumentOverlay from "./argument-popover";
 
 const nodeTypes = {
   argument: ArgumentNodeComponent,
@@ -77,6 +78,8 @@ const LayoutFlow = ({ nodes, edges }: DebateFlowProps) => {
   const { fitView } = useReactFlow();
   const [nodesState, setNodes, onNodesChange] = useNodesState(nodes);
   const [edgesState, setEdges, onEdgesChange] = useEdgesState(edges);
+  const [selectedArgument, setSelectedArgument] =
+    useState<ArgumentNodeData | null>(null);
 
   const onLayout = useCallback(
     (direction: string) => {
@@ -103,10 +106,20 @@ const LayoutFlow = ({ nodes, edges }: DebateFlowProps) => {
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         nodeTypes={nodeTypes}
+        onNodeClick={(event, node) => {
+          setSelectedArgument(node.data);
+        }}
         edgeTypes={edgeTypes}
         fitView
         connectionMode={ConnectionMode.Loose}
       >
+        {selectedArgument && (
+          <ArgumentOverlay
+            argument={selectedArgument}
+            position={{ x: 10, y: 10 }}
+            onClose={() => setSelectedArgument(null)}
+          />
+        )}
         <Background />
         <Controls />
         <Panel position="top-right">
