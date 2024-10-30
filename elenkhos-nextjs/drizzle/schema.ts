@@ -12,11 +12,7 @@ import {
 import { InferInsertModel, InferSelectModel, relations } from "drizzle-orm";
 
 // Define the relation type enum
-export const relationTypeEnum = pgEnum("relation_type", [
-  "support",
-  "attack",
-  "other",
-]);
+export const relationTypeEnum = pgEnum("relation_type", ["SUPPORT", "ATTACK"]);
 
 // Debates table
 export const debates = pgTable("debates", {
@@ -55,6 +51,7 @@ export const _arguments = pgTable("arguments", {
   end: integer("end"),
   text: text("text"),
   speaker: varchar("speaker", { length: 255 }),
+  shortName: varchar("short_name", { length: 255 }),
 });
 
 // Premises table
@@ -72,6 +69,18 @@ export const criticalQuestions = pgTable("critical_questions", {
 });
 
 // Relations table
+export const relationCriterionEnum = pgEnum("relation_criterion", [
+  "LOGICAL_CONTRADICTION",
+  "PREMISE_UNDERMINING",
+  "REBUTTAL",
+  "UNDERCUTTING",
+  "PREMISE_REINFORCEMENT",
+  "CONCLUSION_STRENGTHENING",
+  "INFERENTIAL_BACKING",
+  "EVIDENTIAL_SUPPORT",
+  "NO_RELATION",
+]);
+
 export const _relations = pgTable("relations", {
   id: serial("id").primaryKey(),
   debateId: integer("debate_id")
@@ -84,7 +93,12 @@ export const _relations = pgTable("relations", {
     .references(() => _arguments.id)
     .notNull(),
   type: relationTypeEnum("type").notNull(),
+  criterion: relationCriterionEnum("criterion").notNull(),
+  confidence: real("confidence").notNull(),
+  description: text("description"),
 });
+
+export type DrizzleRelation = InferSelectModel<typeof _relations>;
 
 // Define relationships
 export const debatesRelations = relations(debates, ({ many }) => ({

@@ -139,6 +139,7 @@ export const analyseDebate = actionClient
           .values({
             debateId: newDebate.id,
             ...argData,
+            shortName: analysis.short_name,
           })
           .returning();
         insertedArguments.push(argument);
@@ -170,7 +171,7 @@ export const analyseDebate = actionClient
       // 9. Insert relations using the real IDs
       console.log("4. Inserting relations");
       for (const relation of relations) {
-        if (relation.type !== "attack" && relation.type !== "support") {
+        if (relation.type !== "ATTACK" && relation.type !== "SUPPORT") {
           console.log(`Skipping relation of type: ${relation.type}`);
           continue;
         }
@@ -179,6 +180,8 @@ export const analyseDebate = actionClient
           sourceId: insertedArguments[relation.source - 1].id, // Map temporary IDs to real IDs
           targetId: insertedArguments[relation.target - 1].id,
           type: relation.type,
+          criterion: relation.criterion,
+          confidence: relation.confidence,
         });
       }
 
