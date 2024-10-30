@@ -17,8 +17,11 @@ import { analyzeArgument } from "../server/analyse-argument";
 import { findArgumentRelations } from "../server/find-argument-relations";
 import { actionClient } from "@/lib/safe-action";
 import { db } from "@/drizzle/db";
+import { revalidatePath } from "next/cache";
 
 const schema = zfd.formData({
+  debateName: zfd.text(z.string().min(1)),
+  debateDescription: zfd.text(z.string().optional()),
   audioFile: zfd.file(),
   assemblyKey: zfd.text(z.string().min(1)),
   openaiKey: zfd.text(z.string().min(1)),
@@ -38,7 +41,8 @@ export const analyseDebate = actionClient
   .schema(schema)
   .stateAction<{ debateId?: number }>(async ({ parsedInput }) => {
     console.log("Starting analyseDebate function");
-    const { audioFile, assemblyKey, openaiKey } = parsedInput;
+    const { audioFile, assemblyKey, openaiKey, debateName, debateDescription } =
+      parsedInput;
 
     // Initialize OpenAI client
     console.log("Initializing OpenAI client");
@@ -101,8 +105,8 @@ export const analyseDebate = actionClient
       const [newDebate] = await tx
         .insert(debates)
         .values({
-          title: "New Debate",
-          description: "Automatically generated debate",
+          title: debateName,
+          description: debateDescription,
         })
         .returning();
 
@@ -179,6 +183,7 @@ export const analyseDebate = actionClient
       }
 
       console.log("Transaction completed successfully");
+      revalidatePath(`/debates`);
       return { debateId: newDebate.id };
     });
   });

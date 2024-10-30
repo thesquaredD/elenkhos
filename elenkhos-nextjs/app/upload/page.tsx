@@ -1,4 +1,3 @@
-// Start of Selection
 "use client";
 import React, { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -21,6 +20,8 @@ const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
 
 const schema = z
   .object({
+    debateName: z.string().min(1, "Debate name is required"),
+    debateDescription: z.string().optional(),
     audioFile: z.any(),
     assemblyKey: z.string().min(1, "Assembly AI key is required"),
     openaiKey: z.string().min(1, "OpenAI key is required"),
@@ -56,6 +57,8 @@ export default function UploadPage() {
 
   const onSubmit = (data: FormData) => {
     const formData = new FormData();
+    formData.append("debateName", data.debateName);
+    formData.append("debateDescription", data.debateDescription || "");
     formData.append("audioFile", data.audioFile[0]);
     formData.append("assemblyKey", data.assemblyKey);
     formData.append("openaiKey", data.openaiKey);
@@ -83,6 +86,35 @@ export default function UploadPage() {
       <div className="">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <FormField
+              control={form.control}
+              name="debateName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Debate Name</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter the debate name" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="debateDescription"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Debate Description</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Enter the debate description (optional)"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="audioFile"
