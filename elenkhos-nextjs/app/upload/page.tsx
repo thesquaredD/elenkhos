@@ -1,3 +1,4 @@
+// Start of Selection
 "use client";
 import React, { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -73,74 +74,86 @@ export default function UploadPage() {
   }, [status, result.data, result.serverError, result.validationErrors]);
 
   return (
-    <div className="flex">
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 ">
-          <FormField
-            control={form.control}
-            name="audioFile"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Audio File</FormLabel>
-                <FormControl>
-                  <Input
-                    type="file"
-                    accept="audio/*"
-                    onChange={(e) => {
-                      if (e.target.files) {
-                        // Add size validation here
-                        if (e.target.files[0]?.size > MAX_FILE_SIZE) {
-                          form.setError("audioFile", {
-                            message: "Audio file must be less than 10 MB",
-                          });
-                        } else {
-                          form.clearErrors("audioFile");
-                          field.onChange(e.target.files);
+    <div className="flex flex-1 flex-col">
+      <h1 className="text-4xl font-bold">Upload Debate</h1>
+      <p className="text-lg mb-6">
+        Upload an audio file with up to 10MB, use your API keys and we&apos;ll
+        analyse the debate for you.
+      </p>
+      <div className="">
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <FormField
+              control={form.control}
+              name="audioFile"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Audio File</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="file"
+                      accept="audio/*"
+                      onChange={(e) => {
+                        if (e.target.files) {
+                          // Add size validation here
+                          if (e.target.files[0]?.size > MAX_FILE_SIZE) {
+                            form.setError("audioFile", {
+                              message: "Audio file must be less than 10 MB",
+                            });
+                          } else {
+                            form.clearErrors("audioFile");
+                            field.onChange(e.target.files);
+                          }
                         }
-                      }
-                    }}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="assemblyKey"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Assembly AI Key</FormLabel>
-                <FormControl>
-                  <Input placeholder="Enter your Assembly AI key" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="openaiKey"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>OpenAI Key</FormLabel>
-                <FormControl>
-                  <Input placeholder="Enter your OpenAI key" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <div className="flex justify-end">
-            <Button type="submit" disabled={isPending}>
-              {isPending ? "Submitting..." : "Submit"}
-            </Button>
+                      }}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="assemblyKey"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Assembly AI Key</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Enter your Assembly AI key"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="openaiKey"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>OpenAI Key</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter your OpenAI key" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <div className="flex justify-center">
+              <Button type="submit" disabled={isPending} className="w-full">
+                {isPending ? "Submitting..." : "Submit"}
+              </Button>
+            </div>
+          </form>
+        </Form>
+        {message && (
+          <div className="mt-4 p-4 bg-green-100 text-green-800 rounded">
+            {message}
           </div>
-        </form>
-      </Form>
-      {message && (
-        <div className="mt-4 p-4 bg-green-100 rounded">{message}</div>
-      )}
+        )}
+      </div>
     </div>
   );
 }
