@@ -52,6 +52,7 @@ export const ArgumentAnalysisSchema = z.object({
   premises: z.array(z.string()),
   conclusion: z.string(),
   critical_questions: z.array(z.string()),
+  short_name: z.string(),
 });
 
 export const ArgumentSchema = ArgumentAnalysisSchema.extend({

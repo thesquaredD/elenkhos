@@ -29,6 +29,7 @@ export type ArgumentResponse = {
   conclusion: string;
   critical_questions: string[];
   premises: string[];
+  short_name: string;
   text: string;
   speaker: string;
 };
@@ -73,6 +74,7 @@ export const analyseDebate = actionClient
         conclusion: analyzedArguments[i].conclusion,
         critical_questions: analyzedArguments[i].critical_questions,
         premises: analyzedArguments[i].premises,
+        short_name: analyzedArguments[i].short_name,
         text: segment.text,
         speaker: segment.speaker,
         start: segment.start,

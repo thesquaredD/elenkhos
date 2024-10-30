@@ -20,6 +20,7 @@ export async function analyzeArgument(
       2. The premises of the argument
       3. The conclusion of the argument
       4. Critical questions relevant to this argument scheme
+      5. A short name for the argument
     `;
 
   const completion = await openai.beta.chat.completions.parse({
