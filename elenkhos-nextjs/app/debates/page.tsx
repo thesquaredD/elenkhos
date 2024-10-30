@@ -7,8 +7,8 @@ export default async function DebatesPage() {
   const allDebates = await db.select().from(debates);
 
   return (
-    <div className="flex flex-1 flex-col">
-      <div className="flex justify-between items-center mb-8">
+    <div className="flex flex-1 flex-col gap-4">
+      <div className="flex justify-between space-x-2">
         <h1 className="text-4xl font-bold">Debates</h1>
         <Link href="/upload">
           <Button>Upload New Debate</Button>

@@ -1,5 +1,7 @@
 import { z } from "zod";
 import Graph from "graphology";
+import { DrizzleArgument } from "@/drizzle/schema";
+import { Node } from "@xyflow/react";
 
 export const WordSchema = z.object({
   text: z.string(),
@@ -55,6 +57,17 @@ export const ArgumentAnalysisSchema = z.object({
   short_name: z.string(),
 });
 
+export const RelationTypeSchema = z.enum(["SUPPORT", "ATTACK"]);
+
+export interface ArgumentNode extends Node {
+  data: DrizzleArgument & {
+    label: string;
+    speakerShape: number;
+  };
+}
+
+export type RelationType = z.infer<typeof RelationTypeSchema>;
+
 export const ArgumentSchema = ArgumentAnalysisSchema.extend({
   id: z.number(),
   text: z.string(),
@@ -64,9 +77,21 @@ export const ArgumentSchema = ArgumentAnalysisSchema.extend({
 export const RelationSchema = z.object({
   source: z.number(),
   target: z.number(),
-  type: z.string(),
+  type: z.enum(["ATTACK", "SUPPORT", "NONE"]),
+  criterion: z.enum([
+    "LOGICAL_CONTRADICTION",
+    "PREMISE_UNDERMINING",
+    "REBUTTAL",
+    "UNDERCUTTING",
+    "PREMISE_REINFORCEMENT",
+    "CONCLUSION_STRENGTHENING",
+    "INFERENTIAL_BACKING",
+    "EVIDENTIAL_SUPPORT",
+    "NO_RELATION",
+  ]),
+  confidence: z.number(),
+  description: z.string().optional(),
 });
-
 export const DebateAnalysisSchema = z.object({
   arguments: z.array(ArgumentSchema),
   graph: z.instanceof(Graph),
